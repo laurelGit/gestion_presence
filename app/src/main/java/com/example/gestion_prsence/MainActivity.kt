@@ -16,6 +16,7 @@ import com.example.gestion_prsence.ui.theme.Gestion_PrésenceTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
         enableEdgeToEdge()
         setContent {
             Gestion_PrésenceTheme {

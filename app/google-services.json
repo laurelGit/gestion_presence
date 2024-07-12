@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1071021231272",
+    "project_id": "gestion-presence-ea2ea",
+    "storage_bucket": "gestion-presence-ea2ea.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1071021231272:android:a9d7c65335b11f8a73469d",
+        "android_client_info": {
+          "package_name": "com.example.gestion_prsence"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRmSvj6LqnKBByNRmTJCbXBxxd1-ngKEw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
