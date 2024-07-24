@@ -18,10 +18,13 @@ import com.example.gestion_prsence.ui.theme.Gestion_PrésenceTheme
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
-
+   // private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,13 +39,33 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+
+
         // Initialize Firebase Auth
         auth = Firebase.auth
     }
     public override fun onStart() {
         super.onStart()
-        //createUserWithEmailPassCustom()
-        //signInWithEmailPassCustom()
+        val requeteData = RqueteData(
+            email = "ajeangael@gmail.com",
+            motif = "retard",
+            detail = "la pluie m'a bloquée le matin le matin",
+             heure = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date()),
+             date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        )
+
+        val requete = Requete()
+        requete.ajouterRequete(requeteData,
+            onSuccess = {
+                Log.d("succes","requete envoyée avec succes")
+                Toast.makeText(this, "Requête ajoutée avec succès", Toast.LENGTH_SHORT).show()
+            },
+            onFailure = { exception ->
+                Toast.makeText(this, "Erreur lors de l'ajout de la requête: ${exception.message}", Toast.LENGTH_SHORT).show()
+                Log.d("echec","echec d'envoie de la requete")
+            }
+        )
     }
 
     private fun createUserWithEmailPassCustom(){
