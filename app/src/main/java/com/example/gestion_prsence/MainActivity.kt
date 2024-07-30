@@ -1,6 +1,7 @@
 package com.example.gestion_prsence
 
 import android.content.ContentValues.TAG
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -16,19 +17,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.gestion_prsence.model.Employee
 import com.example.gestion_prsence.ui.theme.Gestion_PrésenceTheme
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var employee: Employee
+    private val reseau = Reseau(this)
+    private val wifi = "57.1u.6f.41.14.a1"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Initialize Firebase Aut
+        // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance()
         employee = Employee()
+        reseau.checkPermissions()
 
         enableEdgeToEdge()
         setContent {
@@ -41,16 +43,31 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
     }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            1 -> {
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    // Permission granted, call the method getwifiMacAdresse
+                    reseau.getwifiMacAdresse(this, wifi)
+                } else {
+                    // Permission denied, display a message or handle the case
+                    Toast.makeText(this, "Permission denied, cannot check WiFi", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
     public override fun onStart() {
         super.onStart()
-       // employee.createUserWithEmailPassCustom(auth, "laurel1@gmail.com", "password")
-       employee.signInWithEmailPassCustom(auth, "laurel1@gmail.com", "password")
+        // employee.createUserWithEmailPassCustom(auth, "laurel1@gmail.com", "password")
+        employee.signInWithEmailPassCustom(auth, "laurel1@gmail.com", "password")
 
-      Toast.makeText(baseContext, "User info : " + auth.currentUser?.email + " - " + auth.currentUser?.displayName, Toast.LENGTH_LONG).show()
-    // employee.updateProfil()
-     //employee.deleteUser()
+        Toast.makeText(baseContext, "User info : " + auth.currentUser?.email + " - " + auth.currentUser?.displayName, Toast.LENGTH_LONG).show()
+        // employee.updateProfil()
+        // employee.deleteUser()
     }
 }
 
