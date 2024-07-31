@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.google.firebase.auth.FirebaseAuth
@@ -15,7 +16,7 @@ import java.util.Locale
 class Horaire {
     private val db = FirebaseFirestore.getInstance()
 
-    fun connecter(context: Context, companyWifiMacAddress: String) {
+   /* fun connecter(context: Context, companyWifiMacAddress: String) {
         val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val wifiInfo = wifiManager.connectionInfo
 
@@ -48,8 +49,9 @@ class Horaire {
             Toast.makeText(context, "Aucun WiFi actif détecté", Toast.LENGTH_LONG).show()
         }
     }
+*/
 
-
+    // méthode pour marquer l'arrivée
     fun marquerArrive(context: Context) {
         val email = FirebaseAuth.getInstance().currentUser?.email
         val heure = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
@@ -67,7 +69,7 @@ class Horaire {
             "email" to email
         )
 
-        db.collection("users").document(email)
+        db.collection("horaire").document("$email-$date")
             .set(presenceData)
             .addOnSuccessListener {
                 Toast.makeText(context, "Heure d'arrivée enregistrée avec succès", Toast.LENGTH_SHORT).show()
@@ -76,17 +78,18 @@ class Horaire {
                 Toast.makeText(context, "Erreur lors de l'enregistrement de l'heure d'arrivée", Toast.LENGTH_SHORT).show()
             }
     }
-
+    // méthode pour marquer le départ
     fun marquerDepart(context: Context) {
         val email = FirebaseAuth.getInstance().currentUser?.email
         val heure = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
         if (email == null) {
             Toast.makeText(context, "Utilisateur non connecté", Toast.LENGTH_SHORT).show()
             return
         }
 
-        db.collection("users").document(email)
+        db.collection("horaire").document("$email-$date")
             .update("depart", heure)
             .addOnSuccessListener {
                 Toast.makeText(context, "Heure de départ enregistrée avec succès", Toast.LENGTH_SHORT).show()
@@ -95,4 +98,54 @@ class Horaire {
                 Toast.makeText(context, "Erreur lors de l'enregistrement de l'heure de départ", Toast.LENGTH_SHORT).show()
             }
     }
+    // méthode pour vérifier si l'utilisateur a déjà marqué son heure d'arrivée
+    fun verifierEtMarquerArrive(context: Context) {
+        val db = FirebaseFirestore.getInstance()
+        val email = FirebaseAuth.getInstance().currentUser?.email
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        if (email == null) {
+            Toast.makeText(context, "Utilisateur non connecté", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val documentId = "$email-$date"
+        val documentRef = db.collection("horaire").document(documentId)
+
+        documentRef.get()
+            .addOnSuccessListener { document ->
+                if (document.exists() && document.get("arrive") != null) {
+                    Toast.makeText(context, "Vous avez déjà marqué votre arrivée aujourd'hui", Toast.LENGTH_SHORT).show()
+                } else {
+                    marquerArrive(context)
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Erreur lors de la vérification de l'heure d'arrivée", Toast.LENGTH_SHORT).show()
+            }
+    }
+    // methode pour modifier l'heure d'arrivée (methode reservée aux admins)
+    fun modifierHeureArrive(context: Context, email: String, newHeure: String) {
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        if (email.isEmpty() || newHeure.isEmpty()) {
+            Toast.makeText(context, "Email ou Heure d'arrivée ne peuvent pas être vides", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val documentId = "$email-$date"
+        val userRef = db.collection("horaire").document(documentId)
+
+        // Met à jour l'heure d'arrivée
+        userRef.update("arrive", newHeure)
+            .addOnSuccessListener {
+                Toast.makeText(context, "Heure d'arrivée modifiée avec succès", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Erreur lors de la modification de l'heure d'arrivée", Toast.LENGTH_SHORT).show()
+                Log.e("ModifierHeureArrive", "Erreur lors de la modification de l'heure d'arrivée: ${e.message}", e)
+            }
+    }
+
+
 }
