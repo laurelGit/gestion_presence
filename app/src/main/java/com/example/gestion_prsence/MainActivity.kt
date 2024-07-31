@@ -47,17 +47,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            1 -> {
-                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    // Permission granted, call the method getwifiMacAdresse
-                    reseau.getwifiMacAdresse(this, wifi)
-                } else {
-                    // Permission denied, display a message or handle the case
-                    Toast.makeText(this, "Permission denied, cannot check WiFi", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
+        reseau.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     public override fun onStart() {
