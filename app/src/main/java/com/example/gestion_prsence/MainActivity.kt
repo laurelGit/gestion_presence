@@ -45,11 +45,13 @@ class MainActivity : ComponentActivity() {
     }
     public override fun onStart() {
         super.onStart()
-       // employee.createUserWithEmailPassCustom(auth, "laurel1@gmail.com", "password")
-       employee.signInWithEmailPassCustom(auth, "laurel1@gmail.com", "password")
+     // employee.createUserWithEmailPassCustom(auth, "laurel", "laurel16@gmail.com","authentification","employe")
+       employee.signInWithEmailPassCustom(auth, "laurel16@gmail.com", "authentification")
 
-      Toast.makeText(baseContext, "User info : " + auth.currentUser?.email + " - " + auth.currentUser?.displayName, Toast.LENGTH_LONG).show()
-    // employee.updateProfil()
+      Toast.makeText(baseContext, "User info : " + auth.currentUser?.email + " - " + auth.currentUser?.displayName,
+      Toast.LENGTH_LONG).show()
+  //  employee.updateCurrentUser(this,"nadine","password")
+       // employee.updateUserRole(this,"laurel16@gmail.com","administrateur")
      //employee.deleteUser()
     }
 }
