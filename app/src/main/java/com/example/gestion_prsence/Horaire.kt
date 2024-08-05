@@ -124,7 +124,7 @@ class Horaire {
                 Toast.makeText(context, "Erreur lors de la vérification de l'heure d'arrivée", Toast.LENGTH_SHORT).show()
             }
     }
-    // methode pour modifier l'heure d'arrivée (methode reservée aux admins)
+    /* methode pour modifier l'heure d'arrivée (methode reservée aux admins)
     fun modifierHeureArrive(context: Context, email: String, newHeure: String) {
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
@@ -146,6 +146,58 @@ class Horaire {
                 Log.e("ModifierHeureArrive", "Erreur lors de la modification de l'heure d'arrivée: ${e.message}", e)
             }
     }
+*/
+// methode pour repondre à une requete en modifiant son heure d'arrivée
+    fun modifierHeureArrive(context: Context, email: String, nouvelleHeure: String) {
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        if (email.isEmpty()) {
+            Toast.makeText(context, "Email de l'utilisateur non fourni", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val documentRef = db.collection("horaire").document("$email-$date")
+
+        documentRef.get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    // L'utilisateur a déjà marqué son arrivée, on met à jour l'heure d'arrivée
+                    documentRef.update("arrive", nouvelleHeure)
+                        .addOnSuccessListener {
+                            Toast.makeText(context, "Heure d'arrivée mise à jour avec succès", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(context, "Erreur lors de la mise à jour de l'heure d'arrivée", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    // L'utilisateur n'a pas encore marqué son arrivée, on ajoute un listener
+                    Toast.makeText(context, "L'utilisateur n'a pas encore marqué son arrivée. Attente de l'arrivée...", Toast.LENGTH_SHORT).show()
+
+                    // Ajouter un listener pour surveiller les modifications du document
+                    documentRef.addSnapshotListener { snapshot, e ->
+                        if (e != null) {
+                            Toast.makeText(context, "Erreur lors de l'écoute des changements", Toast.LENGTH_SHORT).show()
+                            return@addSnapshotListener
+                        }
+
+                        if (snapshot != null && snapshot.exists()) {
+                            // Une fois que l'utilisateur marque son arrivée, mettre à jour l'heure
+                            documentRef.update("arrive", nouvelleHeure)
+                                .addOnSuccessListener {
+                                    Toast.makeText(context, "Heure d'arrivée mise à jour avec succès", Toast.LENGTH_SHORT).show()
+                                }
+                                .addOnFailureListener { error ->
+                                    Toast.makeText(context, "Erreur lors de la mise à jour de l'heure d'arrivée", Toast.LENGTH_SHORT).show()
+                                }
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Erreur lors de la vérification de l'heure d'arrivée", Toast.LENGTH_SHORT).show()
+            }
+    }
+
 
 
 }

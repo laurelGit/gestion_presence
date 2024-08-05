@@ -20,7 +20,7 @@ import java.util.*
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private val horaire = Horaire()
-    private val companyWifiMacAddress = "18:fd:74:3a:3b:17"
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,32 +32,12 @@ class MainActivity : ComponentActivity() {
 
         auth = Firebase.auth // Initialisation de FirebaseAuth
     }
-
-    override fun onStart() {
+   public  override fun onStart(){
         super.onStart()
-        signInWithEmailPassCustom()
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
-        } else {
-            horaire.connecter(this, companyWifiMacAddress)
-        }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            1 -> {
-                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    horaire.connecter(this, companyWifiMacAddress)
-                } else {
-                    Toast.makeText(this, "Permission refusée, impossible de vérifier le WiFi", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
-
-    private fun createUserWithEmailPassCustom() {
+     fun createUserWithEmailPassCustom() {
         auth.createUserWithEmailAndPassword("laurel@gmail.com", "password")
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
